@@ -17,13 +17,10 @@ const databaseConfig = {
 
 const models = {
   User: sequelize.import('./user'),
-  Message: sequelize.import('./message')
+  UserGroup: sequelize.import('./usergroup'),
+  Buoy: sequelize.import('./buoy'),
+  // Location: sequelize.import('./location'),
+  Data: sequelize.import('./data')
 };
-
-Object.keys(models).forEach((key) => {
-  if ('associate' in models[key]) {
-    models[key].associate(models);
-  }
-});
 
 module.exports = { sequelize, models, databaseConfig };

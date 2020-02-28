@@ -5,25 +5,24 @@ const user = (sequelize, DataTypes) => {
       unique: true
     },
     password: { // TODO: Don't use plaintext password
+      type: DataTypes.STRING
+    },
+    email: {
       type: DataTypes.STRING,
-      unique: false
+      unique: true
+    },
+    role: {
+      type: DataTypes.STRING
+    },
+    lastLogin: {
+      type: DataTypes.DATE
     }
   });
 
-  User.associate = (models) => {
-    User.hasMany(models.Message, { onDelete: 'CASCADE' });
-  };
-
-  User.findByLogin = async (login) => {
-    let foundUser = await User.findOne({
-      where: { username: login }
+  User.findByLogin = async (username) => {
+    const foundUser = await User.findOne({
+      where: { username }
     });
-
-    if (!foundUser) {
-      foundUser = await User.findOne({
-        where: { email: login }
-      });
-    }
 
     return foundUser;
   };

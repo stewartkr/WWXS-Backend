@@ -12,6 +12,8 @@ const {
   app, sequelize, models, databaseConfig
 } = require('../app');
 
+const testData = require('../testdata'); // Test data for seeding database
+
 /**
  * Get port from environment and store in Express.
  */
@@ -32,7 +34,7 @@ const server = http.createServer(app);
 
 sequelize.sync(databaseConfig).then(async () => {
   if (databaseConfig.force) {
-    await createUsersWithMessages();
+    await seedDatabase(testData);
   }
 
   server.listen(port);
@@ -43,6 +45,60 @@ sequelize.sync(databaseConfig).then(async () => {
 /**
  * Seed database.
  */
+const seedDatabase = async (data) => {
+  await createUsers(data.users);
+  await createUserGroups(data.groups);
+  await createBuoys(data.buoys);
+  await createData(data.data);
+};
+
+const createUsers = async (users) => {
+  users.forEach((user) => {
+    models.User.create(
+      {
+        username: user.username,
+        password: user.password,
+        role: user.role
+      }
+    );
+  });
+};
+
+const createUserGroups = async (groups) => {
+  groups.forEach((group) => {
+    models.UserGroup.create( // TODO: Associate UserGroup records with Users and Buoys
+      {
+        name: group.name
+      }
+    );
+  });
+};
+
+const createBuoys = async (buoys) => {
+  buoys.forEach((buoy) => {
+    models.Buoy.create( // TODO: Associate Buoy records to Users through UserGroups
+      {
+        name: buoy.name,
+        mac: buoy.mac
+      }
+    );
+  });
+};
+
+const createData = async (data) => {
+  data.forEach((record) => {
+    models.Data.create( // TODO: Associate Data records with collecting Buoy and uploading User
+      {
+        timestamp: record.timestamp,
+        surfTemp: record.surfTemp,
+        surfSalinity: record.surfSalinity,
+        surfInsolation: record.surfInsolation,
+        depthTurbidity: record.depthTurbidity
+      }
+    )
+  });
+};
+
 const createUsersWithMessages = async () => {
   await models.User.create(
     {
