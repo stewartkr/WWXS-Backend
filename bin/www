@@ -1,0 +1,142 @@
+#!/usr/bin/env node
+
+require('dotenv').config();
+
+/**
+ * Module dependencies.
+ */
+
+const debug = require('debug')('api:server');
+const http = require('http');
+const {
+  app, sequelize, models, databaseConfig
+} = require('../app');
+
+/**
+ * Get port from environment and store in Express.
+ */
+
+const port = normalizePort(process.env.PORT);
+app.set('port', port);
+
+/**
+ * Create HTTP server.
+ */
+
+const server = http.createServer(app);
+
+/**
+ * Sync database.
+ * Listen on provided port, on all network interfaces.
+ */
+
+sequelize.sync(databaseConfig).then(async () => {
+  if (databaseConfig.force) {
+    await createUsersWithMessages();
+  }
+
+  server.listen(port);
+  server.on('error', onError);
+  server.on('listening', onListening);
+});
+
+/**
+ * Seed database.
+ */
+const createUsersWithMessages = async () => {
+  await models.User.create(
+    {
+      username: 'user1',
+      password: 'password1',
+      messages: [
+        {
+          text: 'This is my first message'
+        },
+        {
+          text: 'This is my second message'
+        }
+      ]
+    },
+    {
+      include: [models.Message]
+    }
+  );
+
+  await models.User.create(
+    {
+      username: 'user2',
+      password: 'password2',
+      messages: [
+        {
+          text: 'Hello world!'
+        },
+        {
+          text: 'Hello, user1!'
+        }
+      ]
+    },
+    {
+      include: [models.Message]
+    }
+  );
+};
+
+/**
+ * Normalize a port into a number, string, or false.
+ */
+
+function normalizePort(val) {
+  const portNumber = parseInt(val, 10);
+
+  if (isNaN(portNumber)) {
+    // named pipe
+    return val;
+  }
+
+  if (portNumber >= 0) {
+    // port number
+    return portNumber;
+  }
+
+  return false;
+}
+
+/**
+ * Event listener for HTTP server "error" event.
+ */
+
+function onError(error) {
+  if (error.syscall !== 'listen') {
+    throw error;
+  }
+
+  const bind = typeof port === 'string'
+    ? `Pipe ${port}`
+    : `Port ${port}`;
+
+  // handle specific listen errors with friendly messages
+  switch (error.code) {
+    case 'EACCES':
+      console.error(`${bind} requires elevated privileges`);
+      process.exit(1);
+      break;
+    case 'EADDRINUSE':
+      console.error(`${bind} is already in use`);
+      process.exit(1);
+      break;
+    default:
+      throw error;
+  }
+}
+
+/**
+ * Event listener for HTTP server "listening" event.
+ */
+
+function onListening() {
+  const addr = server.address();
+  const bind = typeof addr === 'string'
+    ? `pipe ${addr}`
+    : `port ${addr.port}`;
+  debug(`Listening on ${bind}`);
+}
