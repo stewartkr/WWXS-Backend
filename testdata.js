@@ -3,17 +3,20 @@ const testData = { // TODO: Associate records
     {
       username: 'kris',
       password: 'admin',
-      role: 'dev'
+      role: 'dev',
+      groupId: 1
     },
     {
       username: 'erik',
       password: 'admin',
-      role: 'dev'
+      role: 'dev',
+      groupId: 1
     },
     {
       username: 'john',
       password: 'password',
-      role: 'user'
+      role: 'user',
+      groupId: 2
     }
   ],
   groups: [
@@ -27,11 +30,13 @@ const testData = { // TODO: Associate records
   buoys: [
     {
       name: 'proto',
-      mac: 'FF-FF-FF-FF-FF-FF'
+      mac: 'FF-FF-FF-FF-FF-FF',
+      groupId: 1
     },
     {
       name: 'salish',
-      mac: '12:34:56:78:9A:BC'
+      mac: '12:34:56:78:9A:BC',
+      groupId: 2
     }
   ],
   data: [
@@ -40,42 +45,54 @@ const testData = { // TODO: Associate records
       surfTemp: Math.random() * 100,
       surfSalinity: Math.random(),
       surfInsolation: Math.random(),
-      depthTurbidity: Math.random()
+      depthTurbidity: Math.random(),
+      buoyId: 1,
+      userId: 1
     },
     {
       timestamp: Date.now(),
       surfTemp: Math.random() * 100,
       surfSalinity: Math.random(),
       surfInsolation: Math.random(),
-      depthTurbidity: Math.random()
+      depthTurbidity: Math.random(),
+      buoyId: 1,
+      userId: 1
     },
     {
       timestamp: Date.now(),
       surfTemp: Math.random() * 100,
       surfSalinity: Math.random(),
       surfInsolation: Math.random(),
-      depthTurbidity: Math.random()
+      depthTurbidity: Math.random(),
+      buoyId: 1,
+      userId: 1
     },
     {
       timestamp: Date.now(),
       surfTemp: Math.random() * 100,
       surfSalinity: Math.random(),
       surfInsolation: Math.random(),
-      depthTurbidity: Math.random()
+      depthTurbidity: Math.random(),
+      buoyId: 2,
+      userId: 1
     },
     {
       timestamp: Date.now(),
       surfTemp: Math.random() * 100,
       surfSalinity: Math.random(),
       surfInsolation: Math.random(),
-      depthTurbidity: Math.random()
+      depthTurbidity: Math.random(),
+      buoyId: 2,
+      userId: 1
     },
     {
       timestamp: Date.now(),
       surfTemp: Math.random() * 100,
       surfSalinity: Math.random(),
       surfInsolation: Math.random(),
-      depthTurbidity: Math.random()
+      depthTurbidity: Math.random(),
+      buoyId: 2,
+      userId: 1
     }
   ]
 };

@@ -33,7 +33,9 @@ app.use(async (req, res, next) => {
 app.use('/', routes.render);
 app.use('/session', routes.session);
 app.use('/user', routes.user);
-// app.use('/message', routes.message);
+app.use('/group', routes.group);
+app.use('/buoy', routes.buoy);
+app.use('/data', routes.data);
 
 // catch 404 and forward to error handler
 app.use((req, res, next) => {

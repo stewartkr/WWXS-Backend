@@ -19,13 +19,13 @@ const user = (sequelize, DataTypes) => {
     }
   });
 
-  User.findByLogin = async (username) => {
-    const foundUser = await User.findOne({
-      where: { username }
-    });
-
-    return foundUser;
+  User.associate = (models) => {
+    User.belongsTo(models.Group);
   };
+
+  User.findByLogin = async (username) => User.findOne({
+    where: { username }
+  });
 
   return User;
 };

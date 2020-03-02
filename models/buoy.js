@@ -21,7 +21,8 @@ const buoy = (sequelize, DataTypes) => {
   });
 
   Buoy.associate = (models) => {
-    Buoy.belongsToMany(models.User, { through: models.UserGroup });
+    Buoy.hasMany(models.Data);
+    Buoy.belongsTo(models.Group);
     // Buoy.hasOne(models.Location);
   };
 

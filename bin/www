@@ -32,7 +32,7 @@ const server = http.createServer(app);
  * Listen on provided port, on all network interfaces.
  */
 
-sequelize.sync(databaseConfig).then(async () => {
+sequelize.sync(databaseConfig).then(async () => { // TODO: Use sequelize.migration() instead
   if (databaseConfig.force) {
     await seedDatabase(testData);
   }
@@ -46,96 +46,51 @@ sequelize.sync(databaseConfig).then(async () => {
  * Seed database.
  */
 const seedDatabase = async (data) => {
+  await createGroups(data.groups);
   await createUsers(data.users);
-  await createUserGroups(data.groups);
   await createBuoys(data.buoys);
   await createData(data.data);
 };
 
-const createUsers = async (users) => {
-  users.forEach((user) => {
-    models.User.create(
-      {
-        username: user.username,
-        password: user.password,
-        role: user.role
-      }
-    );
-  });
-};
+// TODO: Figure out a proper way to chain these so they execute synchronously
+// Inserting data must happen in the correct order. A model's dependencies must be inserted first.
 
-const createUserGroups = async (groups) => {
-  groups.forEach((group) => {
-    models.UserGroup.create( // TODO: Associate UserGroup records with Users and Buoys
-      {
-        name: group.name
-      }
-    );
-  });
-};
+const createGroups = (groups) => new Promise((resolve) => {
+  models.Group.bulkCreate(groups).then(() => {
+    resolve();
+  })
+    .catch((err) => {
+      console.error(err);
+    });
+});
 
-const createBuoys = async (buoys) => {
-  buoys.forEach((buoy) => {
-    models.Buoy.create( // TODO: Associate Buoy records to Users through UserGroups
-      {
-        name: buoy.name,
-        mac: buoy.mac
-      }
-    );
-  });
-};
+const createUsers = (users) => new Promise((resolve) => {
+  models.User.bulkCreate(users).then(() => {
+    resolve();
+  })
+    .catch((err) => {
+      console.error(err);
+    });
+});
 
-const createData = async (data) => {
-  data.forEach((record) => {
-    models.Data.create( // TODO: Associate Data records with collecting Buoy and uploading User
-      {
-        timestamp: record.timestamp,
-        surfTemp: record.surfTemp,
-        surfSalinity: record.surfSalinity,
-        surfInsolation: record.surfInsolation,
-        depthTurbidity: record.depthTurbidity
-      }
-    )
-  });
-};
+const createBuoys = (buoys) => new Promise((resolve) => {
+  models.Buoy.bulkCreate(buoys).then(() => {
+    resolve();
+  })
+    .catch((err) => {
+      console.error(err);
+    });
+});
 
-const createUsersWithMessages = async () => {
-  await models.User.create(
-    {
-      username: 'user1',
-      password: 'password1',
-      messages: [
-        {
-          text: 'This is my first message'
-        },
-        {
-          text: 'This is my second message'
-        }
-      ]
-    },
-    {
-      include: [models.Message]
-    }
-  );
+const createData = (data) => new Promise((resolve) => {
+  models.Data.bulkCreate(data).then(() => {
+    resolve();
+  })
+    .catch((err) => {
+      console.error(err);
+    });
+});
 
-  await models.User.create(
-    {
-      username: 'user2',
-      password: 'password2',
-      messages: [
-        {
-          text: 'Hello world!'
-        },
-        {
-          text: 'Hello, user1!'
-        }
-      ]
-    },
-    {
-      include: [models.Message]
-    }
-  );
-};
 
 /**
  * Normalize a port into a number, string, or false.
