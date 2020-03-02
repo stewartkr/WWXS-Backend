@@ -59,7 +59,7 @@ const group = (sequelize, DataTypes) => {
       this.getBuoys().then((buoys) => {
         let found = false;
         buoys.forEach((buoy) => {
-          if (buoy.dataValues.id === parseInt(bid,10)) found = true;
+          if (buoy.dataValues.id === parseInt(bid, 10)) found = true;
         });
 
         resolve(found);

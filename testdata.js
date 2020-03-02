@@ -1,4 +1,4 @@
-const testData = { // TODO: Associate records
+const testData = {
   users: [
     {
       username: 'kris',
