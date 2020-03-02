@@ -4,98 +4,115 @@ const router = express.Router();
 
 /* Get all groups */
 router.get('/', async (req, res) => {
-  const groups = await req.context.models.Group.findAll();
-  res.send(groups);
+  req.context.models.Group.findAll()
+    .then((groups) => res.send(groups))
+    .catch((err) => {
+      console.error(err);
+      res.send(err);
+    });
 });
 
 /* Get a specific group */
 router.get('/:groupId', async (req, res) => {
-  const group = await req.context.models.Group.findByPk(
+  req.context.models.Group.findByPk(
     req.params.groupId
-  );
-  res.send(group);
+  ).then((group) => res.send(group))
+    .catch((err) => {
+      console.error(err);
+      res.send(err);
+    });
 });
 
 /* Create a group */
-router.post('/', async (req, res) => {
-  const group = await req.context.models.Group.create({
+router.post('/add', async (req, res) => {
+  req.context.models.Group.create({
     name: req.body.name
-  });
+  }).then((group) => res.send(group))
+    .catch((err) => {
+      console.error(err);
+      res.send(err);
+    });
+});
 
-  res.send(group);
+/* Remove a group */
+
+router.post('/remove', async (req, res) => {
+  req.context.models.Group.destroy({
+    where: { name: req.body.name }
+  }).then((n) => {
+    if (n) {
+      res.send(true);
+    }
+    else res.send(false);
+  })
+    .catch((err) => {
+      console.error(err);
+      res.send(err);
+    });
 });
 
 /* Add a user to a group */
-router.post('/add/:groupId/:userId', async (req, res) => {
-  const user = await req.context.models.User.findByPk(
-    req.params.userId
-  ).catch((err) => {
-    console.error(err);
-  });
-
-  const group = await req.context.models.Group.findByPk(
+router.post('/add/:groupId/user/:userId', async (req, res) => {
+  req.context.models.Group.findByPk(
     req.params.groupId
-  ).catch((err) => {
-    console.error(err);
-  });
-
-  if (user && group) {
-    await group.addUserByPk(user.id).catch((err) => console.error(err));
-  }
-
-  res.send((user && group ? user : false));
+  ).then((group) => {
+    group.addUserByPk(
+      req.params.userId
+    ).then(() => res.send(true));
+  })
+    .catch((err) => {
+      console.error(err);
+      res.send(err);
+    });
 });
 
 /* Remove a user from a group */
-router.post('/remove/:groupId/:userId', async (req, res) => {
-  const user = await req.context.models.User.findByPk(
-    req.params.userId
-  ).catch((err) => console.error(err));
-
-  const group = await req.context.models.Group.findByPk(
+router.post('/remove/:groupId/user/:userId', async (req, res) => {
+  req.context.models.Group.findByPk(
     req.params.groupId
-  ).catch((err) => console.error(err));
-
-  if (user && group) {
-    await group.removeUserByPk(user.id).catch((err) => console.error(err));
-  }
-
-  res.send((user && group ? user : false));
+  ).then((group) => {
+    group.removeUserByPk(
+      req.params.userId
+    ).then(() => res.send(true));
+  })
+    .catch((err) => {
+      console.error(err);
+      res.send(err);
+    });
 });
 
 /* Add a buoy to a group */
-router.post('/add/:groupId/:buoyId', async (req, res) => {
-  const buoy = await req.context.models.Buoy.findByPk(
-    req.params.buoyId
-  ).catch((err) => console.error(err));
-
-  const group = await req.context.models.Group.findByPk(
+router.post('/add/:groupId/buoy/:buoyId', async (req, res) => {
+  req.context.models.Group.findByPk(
     req.params.groupId
-  ).catch((err) => console.error(err));
-
-  if (buoy && group) {
-    await group.addBuoyByPk(buoy.id).catch((err) => console.error(err));
-  }
-
-  res.send((buoy && group ? buoy : false));
+  ).then((group) => {
+    group.addBuoyByPk(
+      req.params.buoyId
+    ).then(() => res.send(true));
+  })
+    .catch((err) => {
+      console.error(err);
+      res.send(err);
+    });
 });
 
 /* Remove a buoy from a group */
-router.post('/remove/:groupId/:buoyId', async (req, res) => {
+router.post('/remove/:groupId/buoy/:buoyId', async (req, res) => {
   req.context.models.Group.findByPk(
     req.params.groupId
   ).then((group) => {
     group.removeBuoyByPk(
       req.params.buoyId
-    );
+    ).then(() => res.send(true));
   })
-    .catch((err) => console.error(err));
-
-  res.send(true);
+    .catch((err) => {
+      console.error(err);
+      res.send(err);
+    });
 });
 
 /* Check if user in group */
-router.get('/:groupId/:userId', async (req, res) => {
+router.get('/:groupId/user/:userId', async (req, res) => {
   req.context.models.Group.findByPk(
     req.params.groupId
   ).then((group) => {
@@ -104,11 +121,14 @@ router.get('/:groupId/:userId', async (req, res) => {
     ).then((result) => {
       res.send(result);
     });
-  }).catch((err) => console.error(err));
+  }).catch((err) => {
+    console.error(err);
+    res.send(err);
+  });
 });
 
 /* Check if buoy in group */
-router.get('/:groupId/:buoyId', async (req, res) => {
+router.get('/:groupId/buoy/:buoyId', async (req, res) => {
   req.context.models.Group.findByPk(
     req.params.groupId
   ).then((group) => {
@@ -117,7 +137,10 @@ router.get('/:groupId/:buoyId', async (req, res) => {
     ).then((result) => {
       res.send(result);
     });
-  }).catch((err) => console.error(err));
+  }).catch((err) => {
+    console.error(err);
+    res.send(err);
+  });
 });
 
 module.exports = router;

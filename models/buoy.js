@@ -21,7 +21,7 @@ const buoy = (sequelize, DataTypes) => {
   });
 
   Buoy.associate = (models) => {
-    Buoy.hasMany(models.Data);
+    Buoy.hasMany(models.Data, { onDelete: 'CASCADE' }); // Deletes all associated data records when removed
     Buoy.belongsTo(models.Group);
     // Buoy.hasOne(models.Location);
   };

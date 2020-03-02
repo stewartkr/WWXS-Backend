@@ -4,26 +4,52 @@ const router = express.Router();
 
 /* Get all users */
 router.get('/', async (req, res) => {
-  const users = await req.context.models.User.findAll(); // TODO: This also shows passwords (stored in plaintext)
-  return res.send(users);
+  req.context.models.User.findAll()
+    .then((users) => res.send(users))
+    .catch((err) => {
+      console.error(err);
+      res.send(err);
+    });
 });
 
 /* Get a specific user */
 router.get('/:userId', async (req, res) => {
-  const user = await req.context.models.User.findByPk(
+  req.context.models.User.findByPk(
     req.params.userId
-  );
-  res.send(user);
+  ).then((user) => res.send(user))
+    .catch((err) => {
+      console.error(err);
+      res.send(err);
+    });
 });
 
 /* Create a user */
 router.post('/', async (req, res) => {
-  const user = await req.context.models.User.create({
+  req.context.models.User.create({
     username: req.body.username,
-    password: req.body.password
-  });
+    password: req.body.password // TODO: Hash password
+  }).then((user) => res.send(user))
+    .catch((err) => {
+      console.error(err);
+      res.send(err);
+    });
+});
 
-  res.send(user);
+/* Remove a user */
+router.post('/remove', async (req, res) => {
+  req.context.models.User.destroy({
+    where: { username: req.body.username }
+  }).then((n) => {
+    if (n) {
+      res.send(true);
+    }
+    else {
+      res.send(false);
+    }
+  }).catch((err) => {
+    console.error(err);
+    res.send(err);
+  });
 });
 
 module.exports = router;

@@ -5,7 +5,7 @@ const group = require('./group');
 const buoy = require('./buoy');
 const data = require('./data');
 
-module.exports = { // TODO: Add Promise reject callbacks
+module.exports = {
   render,
   session,
   user,
