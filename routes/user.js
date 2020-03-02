@@ -27,7 +27,7 @@ router.get('/:userId', async (req, res) => {
 router.post('/', async (req, res) => {
   req.context.models.User.create({
     username: req.body.username,
-    password: req.body.password // TODO: Hash password
+    password: req.body.password
   }).then((user) => res.send(user))
     .catch((err) => {
       console.error(err);

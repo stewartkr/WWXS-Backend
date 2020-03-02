@@ -3,37 +3,31 @@ const express = require('express');
 const router = express.Router();
 
 router.get('/', async (req, res) => {
-  res.send(req.context.loggedIn);
+  // TODO: Get currently logged in user
 });
 
 router.post('/logout', (req, res) => {
-  let result = false;
-  if (req.context.loggedIn) {
-    req.context.loggedIn = null;
-    result = true;
-  }
-
-  res.send(result);
+  // TODO: Logout
 });
 
 router.post('/login', async (req, res) => {
-  let user = null;
   if (!req.context.loggedIn) {
-    user = await req.context.models.User.findByLogin(
+    req.context.models.User.findByLogin(
       req.body.username
-    );
-
-    if (user && req.body.password === user.password) { // TODO: Move authentication elsewhere
-      req.context.loggedIn = user;
-      console.log(`logged in as ${user.username}`);
-    }
-    else {
-      user = null;
-      console.log('wrong password or user not found');
-    }
+    ).then((user) => {
+      user.validateLogin(req.body.password)
+        .then((result) => {
+          // TODO: Login
+          res.send(result);
+        });
+    }).catch((err) => {
+      console.error(err);
+      res.send(err);
+    });
   }
-
-  res.send(user);
+  else {
+    res.send(false);
+  }
 });
 
 module.exports = router;

@@ -65,7 +65,7 @@ const createGroups = (groups) => new Promise((resolve) => {
 });
 
 const createUsers = (users) => new Promise((resolve) => {
-  models.User.bulkCreate(users).then(() => {
+  models.User.bulkCreate(users, { individualHooks: true }).then(() => {
     resolve();
   })
     .catch((err) => {

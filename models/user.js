@@ -1,10 +1,12 @@
+const bcrypt = require('bcrypt');
+
 const user = (sequelize, DataTypes) => {
   const User = sequelize.define('user', {
     username: {
       type: DataTypes.STRING,
       unique: true
     },
-    password: { // TODO: Don't use plaintext password
+    password: {
       type: DataTypes.STRING
     },
     email: {
@@ -19,10 +21,22 @@ const user = (sequelize, DataTypes) => {
     }
   });
 
-  // TODO: Implement hashing hook?
-  // User.beforeCreate((userModel, hookOptions) => {
-  //   userModel.password = hash(userModel.password);
-  // });
+  User.beforeCreate(async (newUser) => {
+    const saltRounds = 10;
+
+    return new Promise((resolve, reject) => {
+      bcrypt.hash(newUser.password, saltRounds)
+        .then((pass) => {
+          // eslint-disable-next-line no-param-reassign
+          newUser.password = pass;
+          resolve(newUser);
+        })
+        .catch((err) => {
+          console.error(err);
+          reject(err);
+        });
+    });
+  });
 
   User.associate = (models) => {
     User.belongsTo(models.Group);
@@ -31,6 +45,13 @@ const user = (sequelize, DataTypes) => {
   User.findByLogin = async (username) => User.findOne({
     where: { username }
   });
+
+  User.prototype.validateLogin = function validPass(password) {
+    return new Promise((resolve) => {
+      bcrypt.compare(password, this.password)
+        .then((result) => resolve(result));
+    });
+  };
 
   return User;
 };
