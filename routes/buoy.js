@@ -22,7 +22,9 @@ router.get('/buoyId', async (req, res) => {
 router.post('/', async (req, res) => {
   const buoy = await req.context.models.Buoy.create({
     name: req.body.name
-  })
+  });
+
+  res.send(buoy);
 });
 
 module.exports = router;

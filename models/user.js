@@ -19,6 +19,11 @@ const user = (sequelize, DataTypes) => {
     }
   });
 
+  // TODO: Implement hashing hook?
+  // User.beforeCreate((userModel, hookOptions) => {
+  //   userModel.password = hash(userModel.password);
+  // });
+
   User.associate = (models) => {
     User.belongsTo(models.Group);
   };

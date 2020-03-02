@@ -17,5 +17,13 @@ router.get('/:userId', async (req, res) => {
 });
 
 /* Create a user */
+router.post('/', async (req, res) => {
+  const user = await req.context.models.User.create({
+    username: req.body.username,
+    password: req.body.password
+  });
+
+  res.send(user);
+});
 
 module.exports = router;

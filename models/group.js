@@ -15,61 +15,56 @@ const group = (sequelize, DataTypes) => {
     where: { name }
   });
 
-  Group.addUserByPk = async (gid, uid) => {
-    const user = sequelize.models.User.findByPk(uid);
-    const foundGroup = Group.findByPk(gid);
-
-    if (user && foundGroup) {
-      Group.add(foundGroup, user);
-    }
+  // Instance methods must be created with `Model.prototype.function`
+  // Using an arrow function also does not allow you to reference `this`
+  Group.prototype.addUserByPk = async function addUserFunc(uid) {
+    sequelize.models.user.findByPk(uid)
+      .then((user) => this.addUser(user))
+      .catch((err) => console.error(err));
   };
 
-  Group.removeUserByPk = async (gid, uid) => {
-    const user = sequelize.models.User.findByPk(uid);
-    const foundGroup = Group.findByPk(gid);
-
-    if (user && foundGroup) {
-      Group.remove(foundGroup, user);
-    }
+  Group.prototype.removeUserByPk = async function removeUserFunc(uid) {
+    sequelize.models.user.findByPk(uid)
+      .then((user) => this.removeUser(user))
+      .catch((err) => console.error(err));
   };
 
-  Group.addBuoyByPk = async (gid, bid) => {
-    const buoy = sequelize.models.Buoy.findByPk(bid);
-    const foundGroup = Group.findByPk(gid);
-
-    if (buoy && foundGroup) {
-      Group.add(foundGroup, buoy);
-    }
+  Group.prototype.addBuoyByPk = async function addBuoyFunc(bid) {
+    sequelize.models.buoy.findByPk(bid)
+      .then((buoy) => this.addBuoy(buoy))
+      .catch((err) => console.error(err));
   };
 
-  Group.isUserInGroup = async (groupName, userName) => {
-    const foundGroup = Group.findByName(groupName);
-    let found = false;
+  Group.prototype.removeBuoyByPk = async function removeBuoyFunc(bid) {
+    sequelize.models.buoy.findByPk(bid)
+      .then((buoy) => this.removeBuoy(buoy))
+      .catch((err) => console.error(err));
+  };
 
-    if (foundGroup) {
-      const users = foundGroup.getUsers();
+  Group.prototype.isUserInGroup = async function userGroupFunc(uid) {
+    return new Promise((resolve) => {
+      this.getUsers().then((users) => {
+        let found = false;
+        users.forEach((user) => {
+          if (user.dataValues.id === parseInt(uid, 10)) found = true;
+        });
 
-      users.forEach((user) => {
-        if (user.username === userName) found = true;
+        resolve(found);
       });
-    }
-
-    return found;
+    });
   };
 
-  Group.isBuoyInGroup = async (groupName, buoyName) => {
-    const foundGroup = Group.findByName(groupName);
-    let found = false;
+  Group.prototype.isBuoyInGroup = async function buoyGroupFunc(bid) {
+    return new Promise((resolve) => {
+      this.getBuoys().then((buoys) => {
+        let found = false;
+        buoys.forEach((buoy) => {
+          if (buoy.dataValues.id === parseInt(bid,10)) found = true;
+        });
 
-    if (foundGroup) {
-      const buoys = foundGroup.getBuoys();
-
-      buoys.forEach((buoy) => {
-        if (buoy.name === buoyName) found = true;
+        resolve(found);
       });
-    }
-
-    return found;
+    });
   };
 
   return Group;
