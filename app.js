@@ -4,7 +4,9 @@ const path = require('path');
 const cookieParser = require('cookie-parser');
 const logger = require('morgan');
 const cors = require('cors');
+const passport = require('passport');
 
+const { local } = require('./services/auth');
 const routes = require('./routes');
 const { sequelize, models, databaseConfig } = require('./models');
 
@@ -20,13 +22,12 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
+app.use(passport.initialize());
+app.use(passport.session()); // persistent login session
 
 // context for interaction with db models
 app.use(async (req, res, next) => {
-  req.context = {
-    models,
-    loggedIn: null // TODO: I think this is resetting the logged in user for every new API call
-  };
+  req.context = { models };
   next();
 });
 
@@ -36,6 +37,8 @@ app.use('/user', routes.user);
 app.use('/group', routes.group);
 app.use('/buoy', routes.buoy);
 app.use('/data', routes.data);
+
+passport.use('local', local);
 
 // catch 404 and forward to error handler
 app.use((req, res, next) => {
