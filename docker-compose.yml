@@ -5,6 +5,8 @@ services:
                 image: postgres:12.2
                 volumes:
                         - /db
+                networks:
+                        - backend
                 ports:
                         - "5432:5432"
                 environment:
@@ -13,11 +15,30 @@ services:
                 restart: always
 
         backend:
-                image: wwxs_backend:latest
+                container_name: wwxs-backend
                 build: .
+                networks:
+                        - frontend
+                        - backend
                 ports:
                         - "8080:8080"
                 environment:
-                        VAR=
+                        ARBITRARY_VARIABLE=
                 restart: always
+
+        web:
+                image: nginx:stable
+                volumes:
+                        - ./nginx_config:/etc/nginx/conf.d
+                networks:
+                        - frontend
+                ports:
+                        - "80:80"
+                restart: always
+
+networks:
+        frontend:
+                driver: bridge
+        backend:
+                driver: bridge
 
